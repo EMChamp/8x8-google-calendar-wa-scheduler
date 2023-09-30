@@ -1,0 +1,311 @@
+{
+  "definition": {
+    "id": "73a93f2b-33d3-4a6c-aa74-fe9576d43dea",
+    "name": "RS WhatsApp HTTP",
+    "version": 50,
+    "steps": [
+      {
+        "stepType": "Branch",
+        "id": "branch_5885",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {},
+        "outputs": {},
+        "selectNextStep": {
+          "chatappsmessage_9541": "{{stringContains(data.payload.content.text, 'RSGoogleCalendarDemo', true)}}"
+        }
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_9541",
+        "do": [],
+        "nextStepId": "waitforreply_4613",
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "Welcome to the Google Calendar Demo. Please choose from the following options:\n\n1) Schedule a 1 hour meeting\n2) Schedule a 30 minute meeting"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "WaitForReply",
+        "id": "waitforreply_4613",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "from": "{{data.payload.user.channelUserId}}",
+          "channel": "whatsapp",
+          "timeout": "0.00:01:00"
+        },
+        "outputs": {
+          "waitforreply_4613_step_text": "{{step.reply.payload.content.text}}"
+        },
+        "selectNextStep": {
+          "branch_4992": "{{ step.reply != null }}",
+          "chatappsmessage_5927": "{{ step.reply == null }}"
+        }
+      },
+      {
+        "stepType": "Branch",
+        "id": "branch_4992",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {},
+        "outputs": {},
+        "selectNextStep": {
+          "chatappsmessage_3759": "{{stringContains(data.waitforreply_4613_step_text, '1', true)}}",
+          "chatappsmessage_0588": "{{stringContains(data.waitforreply_4613_step_text, '2', true)}}"
+        }
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_5927",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "You have not responded within the allowed time. Goodbye!"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_0588",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "Logic not built yet, goodbye."
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_3759",
+        "do": [],
+        "nextStepId": "waitforreply_7157",
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "Please enter your email address (Example: john.doe@gmail.com):"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "WaitForReply",
+        "id": "waitforreply_7157",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "from": "{{data.payload.user.channelUserId}}",
+          "channel": "whatsapp",
+          "timeout": "0.00:01:00"
+        },
+        "outputs": {},
+        "selectNextStep": {
+          "httprequest_0049": "{{ step.reply != null }}",
+          "chatappsmessage_9843": "{{ step.reply == null }}"
+        }
+      },
+      {
+        "stepType": "HttpRequest",
+        "id": "httprequest_0049",
+        "do": [],
+        "nextStepId": "chatappsmessage_3791",
+        "inputs": {
+          "headers": {
+            "content-Type": "application/json"
+          },
+          "method": "GET",
+          "url": "https://rsunga.ngrok.io/retrieve_meetings",
+          "parameters": {},
+          "body": {},
+          "timeoutSeconds": 10
+        },
+        "outputs": {
+          "meetings": "{{step.responseBody.date_options}}",
+          "timeslot1_start": "{{step.responseBody.timeslot1_start}}",
+          "timeslot1_end": "{{step.responseBody.timeslot1_end}}",
+          "timeslot2_start": "{{step.responseBody.timeslot2_start}}",
+          "timeslot2_end": "{{step.responseBody.timeslot2_end}}",
+          "timeslot3_start": "{{step.responseBody.timeslot3_start}}",
+          "timeslot3_end": "{{step.responseBody.timeslot3_end}}"
+        },
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_9843",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "No response within the allotted time, goodbye!"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_3791",
+        "do": [],
+        "nextStepId": "waitforreply_0748",
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_WhatsApp",
+          "type": "text",
+          "content": {
+            "text": "{{'Here are the available timeslots. Please enter the number for the option you would like to book. \\n'+ data.meetings}}"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "WaitForReply",
+        "id": "waitforreply_0748",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "from": "{{data.payload.user.channelUserId}}",
+          "channel": "whatsapp",
+          "timeout": "0.00:01:00"
+        },
+        "outputs": {
+          "waitforreply_0748_step_text": "{{step.reply.payload.content.text}}"
+        },
+        "selectNextStep": {
+          "branch_5183": "{{ step.reply != null }}"
+        }
+      },
+      {
+        "stepType": "Branch",
+        "id": "branch_5183",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {},
+        "outputs": {},
+        "selectNextStep": {
+          "httprequest_8688": "{{stringContains(data.waitforreply_0748_step_text, '1', true)}}",
+          "chatappsmessage_3794": "{{stringContains(data.waitforreply_0748_step_text, '2', true)}}",
+          "chatappsmessage_5554": "{{stringContains(data.waitforreply_0748_step_text, '3', true)}}"
+        }
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_5554",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "test3"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_3794",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "test2"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "HttpRequest",
+        "id": "httprequest_8688",
+        "do": [],
+        "nextStepId": "chatappsmessage_3796",
+        "inputs": {
+          "method": "POST",
+          "url": "https://rsunga.ngrok.io/create_meeting",
+          "headers": {
+            "content-Type": "application/json"
+          },
+          "parameters": {
+            "start": "{{data.timeslot1_start}}",
+            "end": "{{data.timeslot1_end}}"
+          },
+          "body": {
+            "start": "{{data.timeslot1_start}}",
+            "end": "{{data.timeslot1_end}}"
+          },
+          "timeoutSeconds": 30
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      },
+      {
+        "stepType": "ChatAppsMessage",
+        "id": "chatappsmessage_3796",
+        "do": [],
+        "nextStepId": null,
+        "inputs": {
+          "subAccountId": "InternalDemoCPaaS_ChatApps",
+          "type": "text",
+          "content": {
+            "text": "Invite Sent!"
+          },
+          "user": {
+            "msisdn": "{{data.payload.user.channelUserId}}"
+          }
+        },
+        "outputs": {},
+        "selectNextStep": {}
+      }
+    ]
+  },
+  "subAccountId": "InternalDemoCPaaS_ChatApps",
+  "trigger": "inbound_chat_apps",
+  "status": "enabled"
+}

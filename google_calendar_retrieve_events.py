@@ -118,9 +118,14 @@ def retrieve_events():
         # Return the available_time_slots JSON and the human-readable date options as a tuple
         result = {
             "date_options": date_options_str,
-            "available_time_slots": available_time_slots
+            "timeslot1_start": available_time_slots[0]['start'],
+            "timeslot1_end": available_time_slots[0]['end'],
+            "timeslot2_start": available_time_slots[1]['start'],
+            "timeslot2_end": available_time_slots[1]['end'],
+            "timeslot3_start": available_time_slots[2]['start'],
+            "timeslot3_end": available_time_slots[2]['end']
         }
-
+        print("timeslot 1 start = " + available_time_slots[0]['start'])
         print(str(result))
         return result
             

@@ -3,7 +3,7 @@
 # Change the scope to 'https://www.googleapis.com/auth/calendar' and delete any
 # stored credentials.
 from __future__ import print_function
-
+from flask import jsonify
 import datetime
 import os.path
 
@@ -17,7 +17,8 @@ from googleapiclient.errors import HttpError
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
-def create_event():
+def create_event(timeslot_start, timeslot_end):
+    print('timeslot in create event  = ' + timeslot_start)
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -45,14 +46,14 @@ def create_event():
         event = {
             'summary': '8x8 Customer Meeting',
             'location': 'One George Street',
-            'description': 'A chance to hear more about Google\'s developer products.',
+            'description': 'A chance to speak to a 8x8 support team expert.',
             'start': {
-                'dateTime': '2023-10-05T09:00:00+08:00',
-                'timeZone': 'America/Los_Angeles',
+                'dateTime': timeslot_start,
+                'timeZone': 'Asia/Singapore',
             },
             'end': {
-                'dateTime': '2023-10-05T10:00:00+08:00',
-                'timeZone': 'America/Los_Angeles',
+                'dateTime': timeslot_end,
+                'timeZone': 'Asia/Singapore',
             },
             'recurrence': [
                 'RRULE:FREQ=DAILY;COUNT=2'
@@ -67,9 +68,20 @@ def create_event():
         }
 
         event = service.events().insert(calendarId='primary', body=event).execute()
-        return(event)
+        event_details = {
+            'event_summary': event['summary'],
+            'event_location': event['location'],
+            'event_description': event['description'],
+            'event_start': event['start']['dateTime'],
+            'event_end': event['end']['dateTime'],
+        }
+
+        # Return the event details as a JSON response
+        return jsonify(event_details)
+    
     except HttpError as error:
-        print('An error occurred: %s' % error)
+        print(str(error))
+        return jsonify({'error': str(error)}), 400
 
 
 if __name__ == '__main__':
