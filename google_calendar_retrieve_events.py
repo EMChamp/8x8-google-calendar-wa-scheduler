@@ -29,6 +29,11 @@ def list_calendars():
 def format_datetime(dt):
     return dt.strftime('%A, %d %B %Y %H:%M')
 
+# Function to check if a date is a weekday (Monday to Friday)
+def is_weekday(date):
+    return date.weekday() < 5  # Monday to Friday are 0 to 4
+
+
 # Function to format time slots
 def format_time_slot(slot, option_number):
     start_time = datetime.fromisoformat(slot["start"])
@@ -67,9 +72,16 @@ def retrieve_events():
         singapore_timezone = datetime.timezone(datetime.timedelta(hours=8))  # UTC+8
         now_singapore = datetime.datetime.now(singapore_timezone)
 
-        # Calculate start and end times for the day in Singapore time
-        start_singapore = now_singapore.replace(hour=9, minute=0, second=0, microsecond=0)
-        end_singapore = now_singapore.replace(hour=18, minute=0, second=0, microsecond=0)
+        # Check if it's a weekday and within the 9 AM to 6 PM time range
+        if is_weekday(now_singapore) and 9 <= now_singapore.hour < 18:
+            # If today is a weekday and within the specified time range, use the current time
+            start_singapore = now_singapore.replace(hour=9, minute=0, second=0, microsecond=0)
+            end_singapore = now_singapore.replace(hour=18, minute=0, second=0, microsecond=0)
+        else:
+            # If today is not a weekday or not within the time range, find the nearest upcoming weekday
+            next_weekday = now_singapore + datetime.timedelta(days=(7 - now_singapore.weekday()))
+            start_singapore = next_weekday.replace(hour=9, minute=0, second=0, microsecond=0)
+            end_singapore = next_weekday.replace(hour=18, minute=0, second=0, microsecond=0)
 
         # Create a list to store available time slots
         available_time_slots = []
@@ -79,7 +91,9 @@ def retrieve_events():
 
         # Iterate through the time slots
         current_time = start_singapore
+        option_number = 1
         while current_time < end_singapore and len(available_time_slots) < 3:
+
             # Check if the current time slot is available
             events_result = service.events().list(calendarId='primary', timeMin=current_time.isoformat(),
                                                 timeMax=(current_time + datetime.timedelta(hours=1)).isoformat(),
@@ -91,11 +105,12 @@ def retrieve_events():
                 slot_end = current_time + datetime.timedelta(hours=1)
                 
                 # Add the human-readable date option
-                date_options.append(f"{format_datetime(slot_start)} - {format_datetime(slot_end)}")
+                date_options.append(f"Option {option_number}: {format_datetime(slot_start)} - {format_datetime(slot_end)}")
                 
                 available_time_slots.append({'start': slot_start.isoformat(), 'end': slot_end.isoformat()})
             
             current_time += datetime.timedelta(hours=1)
+            option_number+=1
 
         # Convert the list of date options to a human-readable string
         date_options_str = "\n".join(date_options)
