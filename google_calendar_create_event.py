@@ -47,10 +47,8 @@ def create_event(timeslot_start, timeslot_end, customer_email):
     try:
         service = build('calendar', 'v3', credentials=creds)
         request_id = generate_request_id(customer_email)
-        print("request id " + request_id)
         event = {
             'summary': '8x8 Customer Meeting',
-            'location': 'One George Street',
             'description': 'A chance to speak to a 8x8 support team expert.',
             'start': {
                 'dateTime': timeslot_start,
@@ -72,12 +70,19 @@ def create_event(timeslot_start, timeslot_end, customer_email):
                 {'email': customer_email},
             ],
             'conferenceData': {
-                'createRequest': {
-                    'conferenceSolutionKey': {
-                        'type': 'hangoutsMeet'
+                'conferenceSolution': {
+                    'key': {
+                        "type":"addOn"
                     },
-                    'requestId': request_id
-                }
+                    'name': '8x8'
+                },
+                'entryPoints': [
+                    {
+                        'entryPointType': 'video',
+                        'uri': 'https://8x8.vc/8x8/'+request_id,  # Replace with your custom conference link
+                        'label': 'https://8x8.vc/8x8/'+request_id,
+                    }
+                ]
             }
         }
 
