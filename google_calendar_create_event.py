@@ -16,9 +16,13 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
+def generate_request_id(customer_email):
+    # Generate a unique requestId based on current date, time, and guest email
+        current_time = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        request_id = f'{current_time}_{customer_email}'
+        return request_id
 
-def create_event(timeslot_start, timeslot_end):
-    print('timeslot in create event  = ' + timeslot_start)
+def create_event(timeslot_start, timeslot_end, customer_email):
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
     """
@@ -42,7 +46,8 @@ def create_event(timeslot_start, timeslot_end):
 
     try:
         service = build('calendar', 'v3', credentials=creds)
-
+        request_id = generate_request_id(customer_email)
+        print("request id " + request_id)
         event = {
             'summary': '8x8 Customer Meeting',
             'location': 'One George Street',
@@ -55,9 +60,6 @@ def create_event(timeslot_start, timeslot_end):
                 'dateTime': timeslot_end,
                 'timeZone': 'Asia/Singapore',
             },
-            'recurrence': [
-                'RRULE:FREQ=DAILY;COUNT=2'
-            ],
             'reminders': {
                 'useDefault': False,
                 'overrides': [
@@ -65,16 +67,21 @@ def create_event(timeslot_start, timeslot_end):
                 {'method': 'popup', 'minutes': 10},
                 ],
             },
+            'attendees': [
+                {'email': 'rommelsunga@gmail.com'},
+                {'email': customer_email},
+            ],
+            'conferenceData': {
+                'createRequest': {
+                    'conferenceSolutionKey': {
+                        'type': 'hangoutsMeet'
+                    },
+                    'requestId': request_id
+                }
+            }
         }
 
-        event = service.events().insert(calendarId='primary', body=event).execute()
-        event_details = {
-            'event_summary': event['summary'],
-            'event_location': event['location'],
-            'event_description': event['description'],
-            'event_start': event['start']['dateTime'],
-            'event_end': event['end']['dateTime'],
-        }
+        event_details = service.events().insert(calendarId='primary', body=event, conferenceDataVersion=1,sendUpdates="all").execute()
 
         # Return the event details as a JSON response
         return jsonify(event_details)

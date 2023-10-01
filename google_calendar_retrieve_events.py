@@ -108,9 +108,9 @@ def retrieve_events():
                 date_options.append(f"Option {option_number}: {format_datetime(slot_start)} - {format_datetime(slot_end)}")
                 
                 available_time_slots.append({'start': slot_start.isoformat(), 'end': slot_end.isoformat()})
-            
+                option_number+=1
+
             current_time += datetime.timedelta(hours=1)
-            option_number+=1
 
         # Convert the list of date options to a human-readable string
         date_options_str = "\n".join(date_options)

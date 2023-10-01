@@ -13,7 +13,9 @@ def create_meeting():
         # Extract the "start" and "end" parameters from the JSON data
         start = request_data.get('start')
         end = request_data.get('end')
-        return create_event(start, end)
+        customer_email = request_data.get('customer_email')
+        print(customer_email)
+        return create_event(start, end, customer_email)
 
 @app.route("/retrieve_meetings")
 def retrieve_meetings():
