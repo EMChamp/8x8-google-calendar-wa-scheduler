@@ -6,6 +6,7 @@ from __future__ import print_function
 from flask import jsonify
 import datetime
 import os.path
+import json
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -89,6 +90,7 @@ def create_event(timeslot_start, timeslot_end, customer_email):
         event_details = service.events().insert(calendarId='primary', body=event, conferenceDataVersion=1,sendUpdates="all").execute()
 
         # Return the event details as a JSON response
+        print(json.dumps(event_details, indent=4))
         return jsonify(event_details)
     
     except HttpError as error:

@@ -125,8 +125,6 @@ def retrieve_events():
             "timeslot3_start": available_time_slots[2]['start'],
             "timeslot3_end": available_time_slots[2]['end']
         }
-        print("timeslot 1 start = " + available_time_slots[0]['start'])
-        print(str(result))
         return result
             
 
