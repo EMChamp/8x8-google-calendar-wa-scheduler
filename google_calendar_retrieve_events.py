@@ -75,13 +75,31 @@ def retrieve_events():
         # Check if it's a weekday and within the 9 AM to 6 PM time range
         if is_weekday(now_singapore) and 9 <= now_singapore.hour < 18:
             # If today is a weekday and within the specified time range, use the current time
-            start_singapore = now_singapore.replace(hour=9, minute=0, second=0, microsecond=0)
-            end_singapore = now_singapore.replace(hour=18, minute=0, second=0, microsecond=0)
+            start_singapore = now_singapore.replace(minute=0, second=0, microsecond=0)
+            end_singapore = now_singapore.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
         else:
             # If today is not a weekday or not within the time range, find the nearest upcoming weekday
-            next_weekday = now_singapore + datetime.timedelta(days=(7 - now_singapore.weekday()))
-            start_singapore = next_weekday.replace(hour=9, minute=0, second=0, microsecond=0)
-            end_singapore = next_weekday.replace(hour=18, minute=0, second=0, microsecond=0)
+            if now_singapore.weekday() == 4:  # If today is Friday
+                if now_singapore.hour >= 18:  # If it's past 6 PM on Friday
+                    # Set next_weekday to Monday at 9 AM
+                    next_weekday = now_singapore.replace(hour=9, minute=0, second=0, microsecond=0)
+                else:
+                    # Add a timedelta of 3 days to get to the next Monday
+                    next_weekday = now_singapore + datetime.timedelta(days=3)
+            else:
+                # Add a timedelta to reach the next Monday (0: Monday, 1: Tuesday, ..., 6: Sunday)
+                days_until_next_monday = (7 - now_singapore.weekday()) % 7
+                next_weekday = now_singapore + datetime.timedelta(days=days_until_next_monday)
+            
+            # Check if it's before 9 AM on Monday
+            if now_singapore.weekday() == 0 and now_singapore.hour < 9:
+                # Adjust the start time to 9 AM today
+                start_singapore = now_singapore.replace(hour=9, minute=0, second=0, microsecond=0)
+                end_singapore = start_singapore + datetime.timedelta(hours=1)
+            else:
+                # Set the start and end times for the next Monday
+                start_singapore = next_weekday.replace(hour=9, minute=0, second=0, microsecond=0)
+                end_singapore = next_weekday.replace(hour=18, minute=0, second=0, microsecond=0)
 
         # Create a list to store available time slots
         available_time_slots = []
@@ -92,8 +110,7 @@ def retrieve_events():
         # Iterate through the time slots
         current_time = start_singapore
         option_number = 1
-        while current_time < end_singapore and len(available_time_slots) < 3:
-
+        while current_time < end_singapore or len(available_time_slots) < 3:
             # Check if the current time slot is available
             events_result = service.events().list(calendarId='primary', timeMin=current_time.isoformat(),
                                                 timeMax=(current_time + datetime.timedelta(hours=1)).isoformat(),

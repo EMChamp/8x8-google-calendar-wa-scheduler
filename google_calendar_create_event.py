@@ -89,8 +89,6 @@ def create_event(timeslot_start, timeslot_end, customer_email):
 
         event_details = service.events().insert(calendarId='primary', body=event, conferenceDataVersion=1,sendUpdates="all").execute()
 
-        # Return the event details as a JSON response
-        print(json.dumps(event_details, indent=4))
         return jsonify(event_details)
     
     except HttpError as error:
