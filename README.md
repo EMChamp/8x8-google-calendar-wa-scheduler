@@ -1,6 +1,10 @@
-# WhatsApp Calendar Invites Project
+# 8x8 WhatsApp Calendar Demo
 
-This project allows you to schedule Google Calendar invites and send them through WhatsApp as a communication channel.
+This project demos how to send Google Calendar invites through WhatsApp. It is designed to integrate with 8x8's Automation Builder. 
+
+It consists of two components:
+- Automation Builder Workflow (RS WhatsApp GCal Demo.json)
+- Flask API, designed to run as a service so that the automation builder workflow can call it.
 
 ## Prerequisites
 
@@ -18,11 +22,10 @@ Before you can run this project, make sure you have the following prerequisites 
 
 3. **Google Calendar API Credentials**: To interact with Google Calendar, you'll need to set up Google API credentials. Follow the instructions in the [Google Calendar Python Quickstart](https://developers.google.com/calendar/quickstart/python) to create and download your API credentials. Save the `credentials.json` file in the project directory.
 
-4. **WhatsApp API Credentials**: You'll need API credentials or tokens for sending messages via WhatsApp. Please refer to the documentation of your chosen WhatsApp API provider to obtain the required credentials.
 
 ## Running the Flask Server
 
-To run the Flask server, follow these steps:
+To run the Flask server locally, follow these steps:
 
 1. Make sure you have completed the prerequisite steps, including installing Python packages and setting up API credentials.
 
@@ -36,19 +39,15 @@ To run the Flask server, follow these steps:
 
    This will start the Flask server, and you'll see output indicating that the server is running.
 
-4. Open a web browser and access the server at `http://localhost:5000`. You can now use the web interface to schedule Google Calendar invites and send them via WhatsApp.
+4. Open a web browser and access the server at `http://localhost:5000`.
+
+To run the Flask server remotely, import this project into your chosen hosting infrastructure. It is assumed you have the necessary expertise to publically expose the API from that infrastructure and is beyond the scope of this guide.
 
 ## Usage
 
-1. Access the web interface by navigating to `http://localhost:5000` in your browser.
+1. Run this service either locally or remotely on a server, ensure this service is accessible to the public internet.
 
-2. Follow the on-screen instructions to authenticate with your Google Calendar account.
-
-3. Schedule calendar invites by providing the necessary details, such as event title, date, and time.
-
-4. Select the recipients and configure WhatsApp messaging options.
-
-5. Click the "Schedule Invite" button to create and send the Google Calendar invite via WhatsApp.
+2. Import the JSON into a workflow. Change the http steps to point to your server.
 
 ## Contributing
 
