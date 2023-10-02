@@ -1,0 +1,7 @@
+Flask==3.0.0
+google_api_python_client==2.100.0
+google_auth_oauthlib==1.1.0
+hubspot==0.1.14.dev0
+hubspot_api_client==8.1.1
+protobuf==4.24.3
+Requests==2.31.0
