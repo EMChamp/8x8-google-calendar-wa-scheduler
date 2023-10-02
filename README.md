@@ -6,6 +6,15 @@ It consists of two components:
 - Automation Builder Workflow (RS WhatsApp GCal Demo.json)
 - Flask API, designed to run as a service so that the automation builder workflow can call it.
 
+## Architecture
+
+This service sits in between Google Calendar API and 8x8's Automation Builder to provide coordination between the two services in order to book a meeting.
+
+The flow below is simplified as there are at least 2 API calls to Google Cloud, one to find free timeslots and then one to book a timeslot.
+
+However there are also potential calls to generate a user token and also potentially multiple calls to check for free meeting slots.
+![Alt text](image.png)
+
 ## Prerequisites
 
 Before you can run this project, make sure you have the following prerequisites installed on your system:
