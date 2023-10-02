@@ -13,18 +13,6 @@ from googleapiclient.errors import HttpError
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-
-def list_calendars():
-        # # Get List of Calendars
-        # calendarlist_result = service.calendarList().list().execute()
-        # calendars = calendarlist_result.get('items',[])
-        # # Extract 'id' parameters using list comprehension
-        # id_list = [entry['id'] for entry in calendars]
-
-        # # Print the list of 'id' parameters
-        # print(id_list)
-        return
-
 # Function to format a datetime object as a human-readable string
 def format_datetime(dt):
     return dt.strftime('%A, %d %B %Y %H:%M')
@@ -40,6 +28,38 @@ def format_time_slot(slot, option_number):
     end_time = datetime.fromisoformat(slot["end"])
     formatted_option = f"Option {option_number}) {start_time.strftime('%B %d, %I%p')} - {end_time.strftime('%I%p')}"
     return formatted_option
+
+def get_next_weekday(now_singapore):
+    # Check if it's a weekday and within the 9 AM to 6 PM time range
+    if is_weekday(now_singapore) and now_singapore.hour < 9:
+        # If today is a weekday and within the specified time range, use the current time
+        start_singapore = now_singapore.replace(hour=9, minute=0, second=0, microsecond=0)
+    elif is_weekday(now_singapore) and now_singapore.hour >=18:
+        # Determine the number of days to add to get to the next weekday
+        if now_singapore.weekday() in [0, 1, 2, 3]:
+            next_weekday = now_singapore + datetime.timedelta(days=1)
+        else:
+            next_weekday = now_singapore + datetime.timedelta(days=3)
+
+        # Set the start and end times for the next weekday
+        start_singapore = next_weekday.replace(hour=9, minute=0, second=0, microsecond=0)
+    elif is_weekday(now_singapore) and 9 <= now_singapore.hour < 18:
+        #Pick the next timeslot at least an hour away
+        next_weekday = now_singapore + datetime.timedelta(hours=1) #This needs to be one hour or the logic for retrieve events will break 
+        start_singapore = next_weekday.replace(minute=0, second=0, microsecond=0)
+    else:
+        if now_singapore.weekday() == 5:
+            next_weekday = now_singapore + datetime.timedelta(days=2)
+        else:
+            next_weekday = now_singapore + datetime.timedelta(days=1)
+        start_singapore = next_weekday.replace(hour=9, minute=0, second=0, microsecond=0)
+    return start_singapore
+
+def is_valid_timeslot(timeslot):
+    if is_weekday(timeslot) and 9 <= timeslot.hour < 18:
+        return True
+    else:
+        return False
 
 def retrieve_events():
     """Shows basic usage of the Google Calendar API.
@@ -72,22 +92,8 @@ def retrieve_events():
         singapore_timezone = datetime.timezone(datetime.timedelta(hours=8))  # UTC+8
         now_singapore = datetime.datetime.now(singapore_timezone)
 
-        # Check if it's a weekday and within the 9 AM to 6 PM time range
-        if is_weekday(now_singapore) and 9 <= now_singapore.hour < 18:
-            # If today is a weekday and within the specified time range, use the current time
-            start_singapore = now_singapore.replace(minute=0, second=0, microsecond=0)
-        else:
-            # Check if it's before 9 AM on Monday
-            if now_singapore.weekday() == 0 and now_singapore.hour < 9:
-                # Adjust the start time to 9 AM today
-                start_singapore = now_singapore.replace(hour=9, minute=0, second=0, microsecond=0)
-            else:
-                # Add a timedelta to reach the next Monday (0: Monday, 1: Tuesday, ..., 6: Sunday)
-                days_until_next_monday = (7 - now_singapore.weekday()) % 7
-                next_weekday = now_singapore + datetime.timedelta(days=days_until_next_monday)
-        
-                # Set the start and end times for the next Monday
-                start_singapore = next_weekday.replace(hour=9, minute=0, second=0, microsecond=0)
+        # Get Start of next Weekday
+        start_singapore = get_next_weekday(now_singapore)
 
         # Create a list to store available time slots
         available_time_slots = []
@@ -98,14 +104,19 @@ def retrieve_events():
         # Iterate through the time slots until there are at least 3.
         current_time = start_singapore
         option_number = 1
+        iterator = 1
+        print("current time = " + str(current_time))
         while len(available_time_slots) < 3:
+            print(iterator)
+            iterator+=1
             # Check if the current time slot is available
             events_result = service.events().list(calendarId='primary', timeMin=current_time.isoformat(),
                                                 timeMax=(current_time + datetime.timedelta(hours=1)).isoformat(),
                                                 maxResults=1, singleEvents=True, orderBy='startTime').execute()
             events = events_result.get('items', [])
-            if not events:
-                # If no event is scheduled, the slot is available
+
+            # If no event is scheduled, the slot is available
+            if not events and is_valid_timeslot(current_time):
                 slot_start = current_time
                 slot_end = current_time + datetime.timedelta(hours=1)
                 
@@ -115,7 +126,7 @@ def retrieve_events():
                 available_time_slots.append({'start': slot_start.isoformat(), 'end': slot_end.isoformat()})
                 option_number+=1
 
-            current_time += datetime.timedelta(hours=1)
+            current_time = get_next_weekday(current_time)
 
         # Convert the list of date options to a human-readable string
         date_options_str = "\n".join(date_options)

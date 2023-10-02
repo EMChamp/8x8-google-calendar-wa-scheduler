@@ -6,7 +6,7 @@ from __future__ import print_function
 from flask import jsonify
 import datetime
 import os.path
-import json
+import config
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -67,7 +67,7 @@ def create_event(timeslot_start, timeslot_end, customer_email):
                 ],
             },
             'attendees': [
-                {'email': 'rommelsunga@gmail.com'},
+                {'email': config.GOOGLE_ACCOUNT},
                 {'email': customer_email},
             ],
             'conferenceData': {
