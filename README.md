@@ -29,7 +29,9 @@ Before you can run this project, make sure you have the following prerequisites 
 
    This will install all the required packages listed in the `requirements.txt` file.
 
-3. **Google Calendar API Credentials**: To interact with Google Calendar, you'll need to set up Google API credentials. Follow the instructions in the [Google Calendar Python Quickstart](https://developers.google.com/calendar/quickstart/python) to create and download your API credentials. Save the `credentials.json` file in the project directory.
+3. **Google Calendar API Credentials**: To interact with Google Calendar, you'll need to set up Google API credentials. Follow the instructions in the [Google Calendar Python Quickstart](https://developers.google.com/calendar/quickstart/python) to create and download your API credentials. Save the credentials as `google_api_creds.json` file in the project directory.
+
+In addition, place your Google Account that you plan to use in `config.py`.
 
 
 ## Running the Flask Server
@@ -48,7 +50,7 @@ To run the Flask server locally, follow these steps:
 
    This will start the Flask server, and you'll see output indicating that the server is running.
 
-4. Open a web browser and access the server at `http://localhost:5000`.
+4. Open a web browser and access the server at `http://localhost:5000` (you can change the port in `api.py` if needed.)
 
 To run the Flask server remotely, import this project into your chosen hosting infrastructure. It is assumed you have the necessary expertise to publically expose the API from that infrastructure and is beyond the scope of this guide.
 
@@ -56,7 +58,7 @@ To run the Flask server remotely, import this project into your chosen hosting i
 
 1. Run this service either locally or remotely on a server, ensure this service is accessible to the public internet.
 
-2. Import the JSON into a workflow. Change the http steps to point to your server.
+2. Import the JSON into a workflow. Change the http steps to point to your server URL instead.
 
 ## Contributing
 
