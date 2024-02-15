@@ -1,1 +1,1 @@
-GOOGLE_ACCOUNT="rommelsunga@gmail.com"
+GOOGLE_ACCOUNT="replace with your gmail account such as john.doe@gmail.com"
